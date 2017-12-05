@@ -8,6 +8,7 @@ import com.example.yf.retrofitengine.net.cookie.cache.SetCookieCache;
 import com.example.yf.retrofitengine.net.cookie.persistence.SharedPrefsCookiePersistor;
 import com.example.yf.retrofitengine.net.intercepter.FilterFastRequestInterceptor;
 import com.example.yf.retrofitengine.net.intercepter.ForceCacheInterceptor;
+import com.example.yf.retrofitengine.net.intercepter.LogIntercepter;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -94,7 +95,8 @@ public class RetrofitEngine {
                 .cache(new Cache(new File(context.getCacheDir(), DEFAULT_CACHE_FILE), DEFAULT_CACHE_SIZE));
         //打印请求日志
         if (BuildConfig.DEBUG) {
-            builder.addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY));
+            //builder.addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY));
+            builder.addInterceptor(new LogIntercepter());
         }
         okHttpClient = builder.build();
     }
