@@ -34,7 +34,8 @@ builder.connectTimeout(10000L, TimeUnit.MILLISECONDS)
         }
         okHttpClient = builder.build();
 ```
-###用法
+### 用法
+下载代码放入项目中
 >Gradle配置:看demo，注意添加[Lambda表达式](http://www.jianshu.com/p/5fc2b3362702).
 
 ```
