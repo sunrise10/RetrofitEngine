@@ -7,6 +7,7 @@
 * 支持过滤恶意频繁网络请求，减轻服务器压力
 * 支持cookie头数据的自动加载及持久化
 * 网络请求数据的处理过程和Activity、Fragment的生命周期一致
+* 支持版本更新（新增）
 ```
 > OkhttpClient构建
 
@@ -85,5 +86,12 @@ homeModel. getUserInfo().compose(RxUtil.lifecycle(this)).subscribe(new CallBack<
             }
         });
 ```
+>版本更新，不多说先看图
 
-
+![](https://ws1.sinaimg.cn/large/ecd2c314ly1fnsrdzallyg20dc0npqvd.jpg)
+在activity里合适的地方
+```
+//拿到写SD卡权限后调用，即可看到上图效果
+updateUtil.showUpdateNotifation();
+updateUtil.download();
+```

@@ -11,7 +11,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:padding="10dp"
-        android:text="查询黄渤的影片" />
+        android:text="更新" />
 
     <ScrollView
         android:layout_width="match_parent"

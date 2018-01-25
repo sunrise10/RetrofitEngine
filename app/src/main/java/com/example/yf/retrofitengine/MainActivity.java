@@ -5,11 +5,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.yf.retrofitengine.base.BaseActivity;
 import com.example.yf.retrofitengine.model.bean.homeBean.response.MovieBean;
 import com.example.yf.retrofitengine.model.net.home.HomeModel;
 import com.example.yf.retrofitengine.net.CallBack;
 import com.example.yf.retrofitengine.net.util.RxUtil;
-import com.example.yf.retrofitengine.base.BaseActivity;
 
 import java.util.List;
 

@@ -9,13 +9,13 @@ import com.example.yf.retrofitengine.net.cookie.persistence.SharedPrefsCookiePer
 import com.example.yf.retrofitengine.net.intercepter.FilterFastRequestInterceptor;
 import com.example.yf.retrofitengine.net.intercepter.ForceCacheInterceptor;
 import com.example.yf.retrofitengine.net.intercepter.LogIntercepter;
+import com.example.yf.retrofitengine.net.util.ProgressInterceptor;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -27,6 +27,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * ① 支持无网络时数据缓存，无需服务器的支持(仅限GET请求)
  * ② 支持过滤恶意频繁网络请求，减轻服务器压力
  * ③ 支持cookie头数据的自动加载及持久化
+ * ④ 支持版本更新
  */
 public class RetrofitEngine {
 
@@ -43,7 +44,9 @@ public class RetrofitEngine {
     private static SharedPrefsCookiePersistor cookiePersistor;
 
     private static OkHttpClient okHttpClient;
+    private static OkHttpClient okHttpClientForDownload;
     private static Retrofit retrofit;
+    private static Retrofit retrofitForDownload;
 
     private RetrofitEngine() {
     }
@@ -51,8 +54,8 @@ public class RetrofitEngine {
     /**
      * 获取retrofit 实例
      *
-     * @param   context
-     * @return  retrofit实例
+     * @param context
+     * @return retrofit实例
      */
     public static Retrofit getInstance(Context context) {
         if (okHttpClient == null) {
@@ -60,14 +63,30 @@ public class RetrofitEngine {
         }
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.douban.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .client(okHttpClient)
-                .build();
+                    .baseUrl("https://api.douban.com/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .client(okHttpClient)
+                    .build();
         }
 
         return retrofit;
+    }
+
+    public static Retrofit getInstanceForDownload() {
+        if (okHttpClientForDownload == null) {
+            initOkhttpClientForDownload();
+        }
+        if (retrofitForDownload == null) {
+            retrofitForDownload = new Retrofit.Builder()
+                    .baseUrl("https://api.douban.com/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .client(okHttpClientForDownload)
+                    .build();
+        }
+
+        return retrofitForDownload;
     }
 
     /**
@@ -99,6 +118,13 @@ public class RetrofitEngine {
             builder.addInterceptor(new LogIntercepter());
         }
         okHttpClient = builder.build();
+    }
+
+    private static void initOkhttpClientForDownload() {
+        okHttpClientForDownload = new OkHttpClient.Builder().connectTimeout(10000L, TimeUnit.MILLISECONDS)
+                .readTimeout(10000L, TimeUnit.MILLISECONDS)
+                .retryOnConnectionFailure(true)
+                .addInterceptor(new ProgressInterceptor()).build();
     }
 
     /**
