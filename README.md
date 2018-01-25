@@ -88,7 +88,8 @@ homeModel. getUserInfo().compose(RxUtil.lifecycle(this)).subscribe(new CallBack<
 ```
 >版本更新，不多说先看图
 
-![](https://ws1.sinaimg.cn/large/ecd2c314ly1fnsrdzallyg20dc0npqvd.jpg)
+![image](https://ws1.sinaimg.cn/large/ecd2c314ly1fnsrdzallyg20dc0npqvd.jpg)
+
 在activity里合适的地方
 ```
 //拿到写SD卡权限后调用，即可看到上图效果
