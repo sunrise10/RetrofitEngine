@@ -88,7 +88,7 @@ homeModel. getUserInfo().compose(RxUtil.lifecycle(this)).subscribe(new CallBack<
 ```
 >版本更新，不多说先看图
 
-![image](https://github.com/sunrise10/RetrofitEngine/blob/master/app/src/main/res/update.gif)
+![image](https://github.com/sunrise10/RetrofitEngine/blob/ccbe948f12290b16a8a2a9f86db2e61a92f1f712/app/src/main/gif/update.gif)
 
 在activity里合适的地方
 ```
