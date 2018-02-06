@@ -1,6 +1,7 @@
 package com.example.yf.retrofitengine.net.util;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.hwangjr.rxbus.RxBus;
 
@@ -25,9 +26,12 @@ import static com.example.yf.retrofitengine.net.util.UpdateUtil.UPDATE;
 public class FileDownloadResponseBody extends ResponseBody {
     private ResponseBody responseBody;
     private BufferedSource bufferedSource;
+    private int progress;
+    private long contentLength;
 
     public FileDownloadResponseBody(ResponseBody responseBody) {
         this.responseBody = responseBody;
+        contentLength = responseBody.contentLength();
     }
 
     @Override
@@ -50,13 +54,15 @@ public class FileDownloadResponseBody extends ResponseBody {
 
     private Source source(Source source) {
         return new ForwardingSource(source) {
-            private long progress = 0;
+            private long bytes = 0;
 
             @Override
             public long read(@NonNull Buffer sink, long byteCount) throws IOException {
                 long bytesRead = super.read(sink, byteCount);
-                progress += bytesRead == -1 ? 0 : bytesRead;
-                RxBus.get().post(UPDATE, new FileDownLoadProgressEvent(contentLength(), progress));
+                bytes += bytesRead == -1 ? 0 : bytesRead;
+                progress = (int) ((bytes * 100) / contentLength);
+                Log.e("yf", "responsebody progress    " + progress);
+                RxBus.get().post(UPDATE, new FileDownLoadProgressEvent(progress));
                 return bytesRead;
             }
         };

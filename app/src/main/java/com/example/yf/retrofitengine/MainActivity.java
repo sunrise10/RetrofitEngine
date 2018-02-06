@@ -1,5 +1,6 @@
 package com.example.yf.retrofitengine;
 
+import android.Manifest;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,6 +11,8 @@ import com.example.yf.retrofitengine.model.bean.homeBean.response.MovieBean;
 import com.example.yf.retrofitengine.model.net.home.HomeModel;
 import com.example.yf.retrofitengine.net.CallBack;
 import com.example.yf.retrofitengine.net.util.RxUtil;
+import com.example.yf.retrofitengine.net.util.UpdateUtil;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.util.List;
 
@@ -18,19 +21,46 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private HomeModel homeModel;
     private TextView tv;
     private Button bt;
+    private Button bt1;
+    private UpdateUtil updateUtil;
+    private RxPermissions rxPermissions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         homeModel = new HomeModel(MainActivity.this);
+        updateUtil = new UpdateUtil(this);
+        rxPermissions = new RxPermissions(this);
         tv = (TextView) findViewById(R.id.tv);
         bt = (Button) findViewById(R.id.bt);
+        bt1 = (Button) findViewById(R.id.bt1);
         bt.setOnClickListener(this);
+        bt1.setOnClickListener(this);
+        updateUtil.showUpdateNotifation();
     }
 
     @Override
     public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.bt:
+                getMovies();
+                break;
+            case R.id.bt1:
+                rxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        .subscribe(granted -> {
+                            if (granted) { // Always true pre-M
+                                // I can control the camera now
+                                updateUtil.download();
+                            } else {
+                                // Oups permission denied
+                            }
+                        });
+                break;
+        }
+    }
+
+    private void getMovies() {
         homeModel.getMovies(toUtf8String("黄渤")).compose(RxUtil.lifecycle(this)).subscribe(new CallBack<MovieBean>() {
             @Override
             public void onSuccess(MovieBean movieBean) {

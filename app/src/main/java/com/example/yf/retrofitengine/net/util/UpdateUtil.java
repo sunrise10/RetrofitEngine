@@ -8,8 +8,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.example.yf.retrofitengine.R;
+import com.example.yf.retrofitengine.net.CallBack;
 import com.example.yf.retrofitengine.net.RetrofitEngine;
 import com.hwangjr.rxbus.RxBus;
 import com.hwangjr.rxbus.annotation.Subscribe;
@@ -20,8 +22,6 @@ import java.io.File;
 import java.io.IOException;
 
 import io.reactivex.Observable;
-import io.reactivex.functions.Function;
-import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import okio.BufferedSink;
@@ -43,6 +43,7 @@ public class UpdateUtil {
     private Activity activity;
     private NotificationManager notificationManager;
     private NotificationCompat.Builder notificationBuilder;
+    private File apkFile;
 
     public UpdateUtil(Activity activity) {
         this.activity = activity;
@@ -58,7 +59,7 @@ public class UpdateUtil {
             tags = {@com.hwangjr.rxbus.annotation.Tag(UPDATE)}
     )
     public void updateProgress(FileDownLoadProgressEvent downloadProgressEvent) {
-        setProgress(downloadProgressEvent);
+        setProgress(downloadProgressEvent.progress);
     }
 
     /**
@@ -76,32 +77,25 @@ public class UpdateUtil {
     public void download() {
         register();
         RetrofitEngine.getInstanceForDownload().create(DownloadApi.class).downloadAPK(UPDATEURL)
-                .map(new Function<ResponseBody, File>() {
+                .subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
+                .subscribe(new CallBack<ResponseBody>() {
                     @Override
-                    public File apply(ResponseBody responseBody) throws Exception {
-                        return writeFile(responseBody.source());
-                    }
-                })
-                .subscribeOn(Schedulers.io())//请求网络 在调度者的io线程
-                .observeOn(Schedulers.io()) //指定线程保存文件
-                .subscribe(new DisposableObserver<File>() {
-                    @Override
-                    public void onNext(File file) {
-                        installApk(file);
+                    public void onSuccess(ResponseBody responseBody) {
+                        try {
+                            apkFile = writeFile(responseBody.source());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            endUpdate();
+                        }
                     }
 
                     @Override
-                    public void onError(Throwable e) {
-                        endUpdate();
-                    }
-
-                    @Override
-                    public void onComplete() {
+                    public void onFail(int code, String message) {
                         endUpdate();
                     }
                 });
-    }
 
+    }
 
     private void register() {
         RxBus.get().register(this);
@@ -122,13 +116,17 @@ public class UpdateUtil {
     /**
      * 设置进度
      *
-     * @param downloadProgressEvent
+     * @param progress
      */
-    private void setProgress(FileDownLoadProgressEvent downloadProgressEvent) {
-        int progress = (int) ((downloadProgressEvent.getProgress() * 100) / downloadProgressEvent.getTotal());
+    private void setProgress(int progress) {
+        Log.e("yf", "updateUtil progress    " + progress);
         notificationBuilder.setProgress(100, progress, false);
         notificationBuilder.setContentText(progress + "%");
         notificationManager.notify(0, notificationBuilder.build());
+        if (progress == 100) {
+            endUpdate();
+            installApk(apkFile);
+        }
     }
 
     interface DownloadApi {
@@ -166,9 +164,9 @@ public class UpdateUtil {
      */
     private void installApk(File apkFile) {
         String appName = activity.getString(getPackageInfo().applicationInfo.labelRes);
-        File file = new File(Environment.getExternalStorageDirectory() + "/" + appName, "app.apk");
+        //File file = new File(Environment.getExternalStorageDirectory() + "/" + appName, "app.apk");
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        FileProvider7.setIntentDataAndType(activity, intent, "application/vnd.android.package-archive", file, true);
+        FileProvider7.setIntentDataAndType(activity, intent, "application/vnd.android.package-archive", apkFile, true);
         activity.startActivity(intent);
     }
 

@@ -7,19 +7,9 @@ package com.example.yf.retrofitengine.net.util;
  */
 
 public class FileDownLoadProgressEvent {
-    private long total;
-    private long progress;
+    public int progress;
 
-    public FileDownLoadProgressEvent(long total, long progress) {
-        this.total = total;
+    public FileDownLoadProgressEvent(int progress) {
         this.progress = progress;
-    }
-
-    public long getProgress() {
-        return progress;
-    }
-
-    public long getTotal() {
-        return total;
     }
 }
