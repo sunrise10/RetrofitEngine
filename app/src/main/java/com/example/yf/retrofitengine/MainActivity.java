@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.example.yf.retrofitengine.base.BaseActivity;
 import com.example.yf.retrofitengine.model.bean.homeBean.response.MovieBean;
+import com.example.yf.retrofitengine.model.bean.homeBean.response.ProvinceBean;
 import com.example.yf.retrofitengine.model.net.home.HomeModel;
 import com.example.yf.retrofitengine.net.CallBack;
 import com.example.yf.retrofitengine.net.util.RxUtil;
@@ -29,7 +30,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        homeModel = new HomeModel(MainActivity.this);
+        homeModel = new HomeModel(this);
         updateUtil = new UpdateUtil(this);
         rxPermissions = new RxPermissions(this);
         tv = (TextView) findViewById(R.id.tv);
@@ -44,7 +45,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bt:
-                getMovies();
+                //getMovies();
+                getProvinces();
                 break;
             case R.id.bt1:
                 rxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -72,6 +74,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     }
                     tv.setText(movieName);
                 }
+
+            }
+
+            @Override
+            public void onFail(int code, String message) {
+
+            }
+        });
+    }
+
+    private void getProvinces(){
+        homeModel.getProvinces().compose(RxUtil.lifecycle(this)).subscribe(new CallBack<ProvinceBean>() {
+            @Override
+            public void onSuccess(ProvinceBean provinceBean) {
 
             }
 

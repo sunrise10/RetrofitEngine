@@ -15,7 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:padding="10dp"
             android:text="查询黄渤的影片" />
 
@@ -25,10 +25,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginLeft="10dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:padding="10dp"
             android:text="更新" />
-
     </LinearLayout>
 
     <ScrollView
@@ -43,6 +42,4 @@
             android:layout_height="wrap_content"
             android:textSize="20sp" />
     </ScrollView>
-
-
 </LinearLayout>

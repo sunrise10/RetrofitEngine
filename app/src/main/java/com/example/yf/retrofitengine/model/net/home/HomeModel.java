@@ -3,6 +3,7 @@ package com.example.yf.retrofitengine.model.net.home;
 import android.content.Context;
 
 import com.example.yf.retrofitengine.model.bean.homeBean.response.MovieBean;
+import com.example.yf.retrofitengine.model.bean.homeBean.response.ProvinceBean;
 import com.example.yf.retrofitengine.net.RetrofitEngine;
 import com.example.yf.retrofitengine.net.util.RxUtil;
 
@@ -23,5 +24,9 @@ public class HomeModel {
 
     public Observable<MovieBean> getMovies(String name) {
         return homeApi.getMovies(name).compose(RxUtil.io2main());
+    }
+
+    public Observable<ProvinceBean> getProvinces() {
+        return homeApi.getProvinces().compose(RxUtil.io2main());
     }
 }

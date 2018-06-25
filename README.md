@@ -86,6 +86,10 @@ homeModel. getUserInfo().compose(RxUtil.lifecycle(this)).subscribe(new CallBack<
             }
         });
 ```
+>请求后的结果也可以在Logcat看得一清二楚,大大提高了开发效率
+
+![image](https://github.com/sunrise10/RetrofitEngine/blob/2aef93beefa61805331a1f40729314595eb54225/app/src/main/gif/log.png)
+
 >版本更新，不多说先看图
 
 ![image](https://github.com/sunrise10/RetrofitEngine/blob/2aef93beefa61805331a1f40729314595eb54225/app/src/main/gif/update.gif)

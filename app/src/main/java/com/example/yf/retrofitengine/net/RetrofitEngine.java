@@ -63,7 +63,8 @@ public class RetrofitEngine {
         }
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl("https://api.douban.com/")
+                    .baseUrl("https://api.it120.cc/")
+                    //.baseUrl("https://api.douban.com/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .client(okHttpClient)
