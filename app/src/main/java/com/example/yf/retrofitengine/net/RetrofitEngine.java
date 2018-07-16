@@ -1,6 +1,9 @@
 package com.example.yf.retrofitengine.net;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.widget.Toast;
 
 import com.example.yf.retrofitengine.BuildConfig;
 import com.example.yf.retrofitengine.net.cookie.PersistentCookieJar;
@@ -143,6 +146,12 @@ public class RetrofitEngine {
      */
     public boolean isLogin(String loginUrl) {
         return cookiePersistor.isLogin(loginUrl);
+    }
+
+    public static boolean checkNetwork(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager == null ? null : connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 
 }

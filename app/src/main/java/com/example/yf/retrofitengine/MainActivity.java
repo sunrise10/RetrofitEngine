@@ -7,15 +7,12 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.yf.retrofitengine.base.BaseActivity;
-import com.example.yf.retrofitengine.model.bean.homeBean.response.MovieBean;
 import com.example.yf.retrofitengine.model.bean.homeBean.response.ProvinceBean;
 import com.example.yf.retrofitengine.model.net.home.HomeModel;
 import com.example.yf.retrofitengine.net.CallBack;
 import com.example.yf.retrofitengine.net.util.RxUtil;
 import com.example.yf.retrofitengine.net.util.UpdateUtil;
 import com.tbruyelle.rxpermissions2.RxPermissions;
-
-import java.util.List;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
 
@@ -33,9 +30,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         homeModel = new HomeModel(this);
         updateUtil = new UpdateUtil(this);
         rxPermissions = new RxPermissions(this);
-        tv = (TextView) findViewById(R.id.tv);
-        bt = (Button) findViewById(R.id.bt);
-        bt1 = (Button) findViewById(R.id.bt1);
+        tv = findViewById(R.id.tv);
+        bt = findViewById(R.id.bt);
+        bt1 = findViewById(R.id.bt1);
         bt.setOnClickListener(this);
         bt1.setOnClickListener(this);
         updateUtil.showUpdateNotifation();
@@ -45,7 +42,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bt:
-                //getMovies();
                 getProvinces();
                 break;
             case R.id.bt1:
@@ -62,33 +58,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
     }
 
-    private void getMovies() {
-        homeModel.getMovies(toUtf8String("黄渤")).compose(RxUtil.lifecycle(this)).subscribe(new CallBack<MovieBean>() {
-            @Override
-            public void onSuccess(MovieBean movieBean) {
-                if (movieBean != null) {
-                    String movieName = "";
-                    List<MovieBean.SubjectsBean> subjects = movieBean.subjects;
-                    for (MovieBean.SubjectsBean subject : subjects) {
-                        movieName += subject.title + "\n";
-                    }
-                    tv.setText(movieName);
-                }
-
-            }
-
-            @Override
-            public void onFail(int code, String message) {
-
-            }
-        });
-    }
-
-    private void getProvinces(){
+    private void getProvinces() {
         homeModel.getProvinces().compose(RxUtil.lifecycle(this)).subscribe(new CallBack<ProvinceBean>() {
             @Override
             public void onSuccess(ProvinceBean provinceBean) {
-
+                tv.setText(provinceBean.data.toString());
             }
 
             @Override
@@ -96,33 +70,5 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
             }
         });
-    }
-
-    /**
-     * 转换为%E4%BD%A0形式
-     */
-    public String toUtf8String(String s) {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (c >= 0 && c <= 255) {
-                sb.append(c);
-            } else {
-                byte[] b;
-                try {
-                    b = String.valueOf(c).getBytes("utf-8");
-                } catch (Exception ex) {
-                    System.out.println(ex);
-                    b = new byte[0];
-                }
-                for (int j = 0; j < b.length; j++) {
-                    int k = b[j];
-                    if (k < 0)
-                        k += 256;
-                    sb.append("%" + Integer.toHexString(k).toUpperCase());
-                }
-            }
-        }
-        return sb.toString();
     }
 }

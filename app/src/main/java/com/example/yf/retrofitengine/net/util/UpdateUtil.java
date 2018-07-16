@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -34,11 +35,12 @@ import retrofit2.http.Url;
 /**
  * Created by yf on 2018/1/23.
  * Email：yunfei10306@163.com
- * 描述：更新
+ * 描述：更新(建议在APP启动的时候判断下Apk存放路径是否有apk存在，存在就删除)
  */
 
 public class UpdateUtil {
     public static final String UPDATE = "update";
+    //设置下载url
     private static final String UPDATEURL = "your company updateURL";
     private Activity activity;
     private NotificationManager notificationManager;
@@ -51,8 +53,6 @@ public class UpdateUtil {
 
     /**
      * 更新进度
-     *
-     * @param downloadProgressEvent
      */
     @Subscribe(
             thread = EventThread.MAIN_THREAD,
@@ -74,27 +74,35 @@ public class UpdateUtil {
                 .setAutoCancel(true);
     }
 
+    /**
+     * 下载APK安装包
+     * 如果APK已存在，直接安装，否则下载后安装
+     */
     public void download() {
-        register();
-        RetrofitEngine.getInstanceForDownload().create(DownloadApi.class).downloadAPK(UPDATEURL)
-                .subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
-                .subscribe(new CallBack<ResponseBody>() {
-                    @Override
-                    public void onSuccess(ResponseBody responseBody) {
-                        try {
-                            apkFile = writeFile(responseBody.source());
-                        } catch (IOException e) {
-                            e.printStackTrace();
+        File downloadPathFile = getDownloadPathFile();
+        if (downloadPathFile.exists()) {
+            installApk(downloadPathFile);
+        } else {
+            register();
+            RetrofitEngine.getInstanceForDownload().create(DownloadApi.class).downloadAPK(UPDATEURL)
+                    .subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
+                    .subscribe(new CallBack<ResponseBody>() {
+                        @Override
+                        public void onSuccess(ResponseBody responseBody) {
+                            try {
+                                apkFile = writeFile(responseBody.source());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                endUpdate();
+                            }
+                        }
+
+                        @Override
+                        public void onFail(int code, String message) {
                             endUpdate();
                         }
-                    }
-
-                    @Override
-                    public void onFail(int code, String message) {
-                        endUpdate();
-                    }
-                });
-
+                    });
+        }
     }
 
     private void register() {
@@ -120,12 +128,17 @@ public class UpdateUtil {
      */
     private void setProgress(int progress) {
         Log.e("yf", "updateUtil progress    " + progress);
-        notificationBuilder.setProgress(100, progress, false);
-        notificationBuilder.setContentText(progress + "%");
-        notificationManager.notify(0, notificationBuilder.build());
-        if (progress == 100) {
+        if (progress < 0) {
             endUpdate();
-            installApk(apkFile);
+            throw new IllegalArgumentException("请先设置你的Apk下载url，设置请到UpdateUtil");
+        } else {
+            notificationBuilder.setProgress(100, progress, false);
+            notificationBuilder.setContentText(progress + "%");
+            notificationManager.notify(0, notificationBuilder.build());
+            if (progress == 100) {
+                endUpdate();
+                installApk(apkFile);
+            }
         }
     }
 
@@ -139,9 +152,7 @@ public class UpdateUtil {
      * 写入文件
      */
     private File writeFile(BufferedSource source) throws IOException {
-        String appName = activity.getString(getPackageInfo().applicationInfo.labelRes);
-        //下载后的保存路径
-        File file = new File(Environment.getExternalStorageDirectory() + "/" + appName, getPackageInfo().versionName + ".apk");
+        File file = getDownloadPathFile();
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
@@ -158,13 +169,19 @@ public class UpdateUtil {
     }
 
     /**
+     * APK存放路径
+     */
+    @NonNull
+    private File getDownloadPathFile() {
+        String appName = activity.getString(getPackageInfo().applicationInfo.labelRes);
+        //下载后的保存路径 如以retrofitEngine1.1.apk命名
+        return new File(Environment.getExternalStorageDirectory() + "/" + appName, getPackageInfo().versionName + ".apk");
+    }
+
+    /**
      * 安装 apk 文件
-     *
-     * @param apkFile
      */
     private void installApk(File apkFile) {
-        String appName = activity.getString(getPackageInfo().applicationInfo.labelRes);
-        //File file = new File(Environment.getExternalStorageDirectory() + "/" + appName, "app.apk");
         Intent intent = new Intent(Intent.ACTION_VIEW);
         FileProvider7.setIntentDataAndType(activity, intent, "application/vnd.android.package-archive", apkFile, true);
         activity.startActivity(intent);
