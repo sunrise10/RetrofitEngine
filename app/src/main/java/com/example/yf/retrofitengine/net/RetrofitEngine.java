@@ -77,9 +77,9 @@ public class RetrofitEngine {
         return retrofit;
     }
 
-    public static Retrofit getInstanceForDownload() {
+    public static Retrofit getInstanceForDownload(boolean silentDownload) {
         if (okHttpClientForDownload == null) {
-            initOkhttpClientForDownload();
+            initOkhttpClientForDownload(silentDownload);
         }
         if (retrofitForDownload == null) {
             retrofitForDownload = new Retrofit.Builder()
@@ -124,11 +124,18 @@ public class RetrofitEngine {
         okHttpClient = builder.build();
     }
 
-    private static void initOkhttpClientForDownload() {
-        okHttpClientForDownload = new OkHttpClient.Builder().connectTimeout(10000L, TimeUnit.MILLISECONDS)
+    /**
+     *
+     * @param silentDownload 是否静默下载
+     */
+    private static void initOkhttpClientForDownload(boolean silentDownload) {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder().connectTimeout(10000L, TimeUnit.MILLISECONDS)
                 .readTimeout(10000L, TimeUnit.MILLISECONDS)
-                .retryOnConnectionFailure(true)
-                .addInterceptor(new ProgressInterceptor()).build();
+                .retryOnConnectionFailure(true);
+        if (!silentDownload) {
+            builder.addInterceptor(new ProgressInterceptor());
+        }
+        okHttpClientForDownload = builder.build();
     }
 
     /**

@@ -48,6 +48,8 @@ public class UpdateUtil {
     private NotificationManager notificationManager;
     private NotificationCompat.Builder notificationBuilder;
     private File apkFile;
+    //是否静默下载
+    private boolean silentdownload = false;
 
     public UpdateUtil(Activity activity) {
         this.activity = activity;
@@ -90,11 +92,11 @@ public class UpdateUtil {
             如不想生成通知栏形式显示下载进度，可替换成dialog形式，如头条更新
             可自定义一个dialog，下载进度在updateProgress()参数downloadProgressEvent.progress中
             因为公司不同，dialog长的也不一样这里也就没写
-            如需静默下载，不显示进度
+            如需静默下载，改变silentdownload为true即可
              */
             showUpdateNotifation();
             Toast.makeText(activity, "下载中...", Toast.LENGTH_SHORT).show();
-            RetrofitEngine.getInstanceForDownload().create(DownloadApi.class).downloadAPK(UPDATEURL)
+            RetrofitEngine.getInstanceForDownload(silentdownload).create(DownloadApi.class).downloadAPK(UPDATEURL)
                     .subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
                     .subscribe(new CallBack<ResponseBody>() {
                         @Override
@@ -103,13 +105,18 @@ public class UpdateUtil {
                                 apkFile = writeFile(responseBody.source());
                             } catch (IOException e) {
                                 e.printStackTrace();
-                                endUpdate();
+                                if(!silentdownload){
+                                    endUpdate();
+                                }
                             }
                         }
 
                         @Override
                         public void onFail(int code, String message) {
-                            endUpdate();
+                            Toast.makeText(activity, "下载失败，请稍后重试！", Toast.LENGTH_SHORT).show();
+                            if(!silentdownload){
+                                endUpdate();
+                            }
                         }
                     });
         }
