@@ -1,6 +1,6 @@
 # RetrofitEngine
 结合Rxjava和Rclifecycle对Retrofit的一次封装，喜欢的朋友可以star一下
-> 主要特点
+> 主要特点(此部分代码高度自由，可变性大，下载源码使用)
 
 | 主要特点        |
 | --------   |
@@ -99,4 +99,5 @@ homeModel. getUserInfo().compose(RxUtil.lifecycle(this)).subscribe(new CallBack<
 ```
 //拿到写SD卡权限后调用，即可看到上图效果
 updateUtil.download();
+更新的原理其实就是给okhttp添加了一个ProgressInterceptor.这个ProgressInterceptor做的就是new了一个FileDownloadResponseBody出去，这个FileDownloadResponseBody包含最重要的progress
 ```

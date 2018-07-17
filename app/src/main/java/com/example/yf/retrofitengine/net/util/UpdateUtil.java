@@ -36,7 +36,8 @@ import retrofit2.http.Url;
 /**
  * Created by yf on 2018/1/23.
  * Email：yunfei10306@163.com
- * 描述：更新(建议在APP启动的时候判断下Apk存放路径是否有apk存在，存在就删除)
+ * 描述：更新(建议在APP启动的时候判断下Apk存放路径是否有该版本apk存在，存在就删除，防止出现下载后的各版本apk存在SD卡中)
+ * 更新的原理其实就是在
  */
 
 public class UpdateUtil {
@@ -85,6 +86,12 @@ public class UpdateUtil {
             installApk(downloadPathFile);
         } else {
             register();
+            /*
+            如不想生成通知栏形式显示下载进度，可替换成dialog形式，如头条更新
+            可自定义一个dialog，下载进度在updateProgress()参数downloadProgressEvent.progress中
+            因为公司不同，dialog长的也不一样这里也就没写
+            如需静默下载，不显示进度
+             */
             showUpdateNotifation();
             Toast.makeText(activity, "下载中...", Toast.LENGTH_SHORT).show();
             RetrofitEngine.getInstanceForDownload().create(DownloadApi.class).downloadAPK(UPDATEURL)
@@ -130,7 +137,7 @@ public class UpdateUtil {
      * @param progress
      */
     private void setProgress(int progress) {
-        Log.e("yf", "updateUtil progress    " + progress);
+        Log.e("Update", "下载接收 progress:    " + progress);
         if (progress < 0) {
             endUpdate();
             throw new IllegalArgumentException("请先设置你的Apk下载url，设置请到UpdateUtil");

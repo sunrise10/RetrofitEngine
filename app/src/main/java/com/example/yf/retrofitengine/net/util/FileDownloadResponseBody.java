@@ -61,7 +61,7 @@ public class FileDownloadResponseBody extends ResponseBody {
                 long bytesRead = super.read(sink, byteCount);
                 bytes += bytesRead == -1 ? 0 : bytesRead;
                 progress = (int) ((bytes * 100) / contentLength);
-                Log.e("yf", "responsebody progress    " + progress);
+                Log.e("Update", "下载发送 progress：    " + progress);
                 RxBus.get().post(UPDATE, new FileDownLoadProgressEvent(progress));
                 return bytesRead;
             }
