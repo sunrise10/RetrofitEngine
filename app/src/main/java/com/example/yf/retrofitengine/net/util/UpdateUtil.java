@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.yf.retrofitengine.R;
 import com.example.yf.retrofitengine.net.CallBack;
@@ -41,7 +42,7 @@ import retrofit2.http.Url;
 public class UpdateUtil {
     public static final String UPDATE = "update";
     //设置下载url
-    private static final String UPDATEURL = "your company updateURL";
+    private static final String UPDATEURL = "set your company download Apk url";
     private Activity activity;
     private NotificationManager notificationManager;
     private NotificationCompat.Builder notificationBuilder;
@@ -84,6 +85,8 @@ public class UpdateUtil {
             installApk(downloadPathFile);
         } else {
             register();
+            showUpdateNotifation();
+            Toast.makeText(activity, "下载中...", Toast.LENGTH_SHORT).show();
             RetrofitEngine.getInstanceForDownload().create(DownloadApi.class).downloadAPK(UPDATEURL)
                     .subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
                     .subscribe(new CallBack<ResponseBody>() {

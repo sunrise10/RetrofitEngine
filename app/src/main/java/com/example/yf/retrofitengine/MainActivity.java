@@ -35,7 +35,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         bt1 = findViewById(R.id.bt1);
         bt.setOnClickListener(this);
         bt1.setOnClickListener(this);
-        updateUtil.showUpdateNotifation();
     }
 
     @Override

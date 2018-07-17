@@ -97,6 +97,5 @@ homeModel. getUserInfo().compose(RxUtil.lifecycle(this)).subscribe(new CallBack<
 在activity里合适的地方
 ```
 //拿到写SD卡权限后调用，即可看到上图效果
-updateUtil.showUpdateNotifation();
 updateUtil.download();
 ```
